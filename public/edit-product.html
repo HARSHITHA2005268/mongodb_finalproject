@@ -1,65 +1,106 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
+  <meta charset="UTF-8" />
   <title>Edit Product</title>
   <style>
     body {
-      font-family: Arial, sans-serif;
-      max-width: 500px;
+      font-family: 'Segoe UI', sans-serif;
+      max-width: 540px;
       margin: 40px auto;
-      background: #f9f9f9;
-      padding: 20px;
-      border-radius: 8px;
-      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+      background: #eef9f9;
+      padding: 30px;
+      border-radius: 12px;
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
     }
+
     h1 {
       text-align: center;
-      color: #333;
+      color: #004d40;
+      margin-bottom: 20px;
     }
+
     label {
       display: block;
       margin-top: 15px;
-      font-weight: bold;
+      font-weight: 600;
+      color: #333;
     }
+
     input, textarea {
       width: 100%;
-      padding: 8px;
-      margin-top: 5px;
-      border-radius: 4px;
-      border: 1px solid #ccc;
-      box-sizing: border-box;
-      font-size: 16px;
-    }
-    button {
-      margin-top: 20px;
-      width: 100%;
       padding: 10px;
-      background-color: #28a745;
-      border: none;
-      color: white;
-      font-size: 18px;
-      border-radius: 5px;
-      cursor: pointer;
+      margin-top: 5px;
+      border-radius: 6px;
+      border: 1px solid #ccc;
+      font-size: 1rem;
+      box-sizing: border-box;
     }
-    button:hover {
+
+    textarea {
+      resize: vertical;
+    }
+
+    .actions {
+      display: flex;
+      gap: 10px;
+      margin-top: 20px;
+    }
+
+    button {
+      flex: 1;
+      padding: 10px;
+      font-size: 1rem;
+      font-weight: 600;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      color: white;
+    }
+
+    button[type="submit"] {
+      background-color: #28a745;
+    }
+
+    button[type="submit"]:hover {
       background-color: #218838;
     }
+
+    button[type="button"] {
+      background-color: #6c757d;
+    }
+
+    button[type="button"]:hover {
+      background-color: #5a6268;
+    }
+
     .link {
-      margin-top: 15px;
+      margin-top: 20px;
       text-align: center;
     }
+
     .link a {
       color: #007BFF;
       text-decoration: none;
     }
+
     .link a:hover {
       text-decoration: underline;
+    }
+
+    #loading {
+      text-align: center;
+      color: #555;
+      font-style: italic;
     }
   </style>
 </head>
 <body>
   <h1>Edit Product</h1>
-  <form id="editProductForm">
+
+  <div id="loading">Loading product details...</div>
+
+  <form id="editProductForm" style="display: none;">
     <label for="name">Name</label>
     <input type="text" id="name" required />
 
@@ -67,39 +108,50 @@
     <textarea id="description" rows="3"></textarea>
 
     <label for="price">Price ($)</label>
-    <input type="number" id="price" step="0.01" required />
+    <input type="number" id="price" step="0.01" required min="0" />
 
     <label for="quantity">Quantity</label>
-    <input type="number" id="quantity" required />
+    <input type="number" id="quantity" required min="0" />
 
-    <button type="submit">Update Product</button>
+    <div class="actions">
+      <button type="submit">Update Product</button>
+      <button type="button" onclick="resetForm()">Reset</button>
+    </div>
   </form>
 
   <div class="link">
-    <a href="products.html">Back to Products</a>
+    <a href="products.html">← Back to Products</a>
   </div>
 
   <script>
     const form = document.getElementById('editProductForm');
     const urlParams = new URLSearchParams(window.location.search);
     const productId = urlParams.get('id');
+    const loading = document.getElementById('loading');
 
-    // Load product details and fill form
+    let originalProduct = null;
+
     async function loadProduct() {
       if (!productId) {
         alert('No product ID provided');
         window.location.href = 'products.html';
         return;
       }
+
       try {
         const res = await fetch(`http://localhost:5000/api/products/${productId}`);
         if (!res.ok) throw new Error('Product not found');
         const product = await res.json();
 
+        originalProduct = { ...product };
+
         document.getElementById('name').value = product.name;
         document.getElementById('description').value = product.description || '';
         document.getElementById('price').value = product.price;
         document.getElementById('quantity').value = product.quantity;
+
+        form.style.display = 'block';
+        loading.style.display = 'none';
       } catch (error) {
         alert(error.message);
         window.location.href = 'products.html';
@@ -116,6 +168,11 @@
         quantity: parseInt(form.quantity.value, 10)
       };
 
+      if (!updatedProduct.name || isNaN(updatedProduct.price) || isNaN(updatedProduct.quantity)) {
+        alert('Please fill all fields correctly');
+        return;
+      }
+
       try {
         const res = await fetch(`http://localhost:5000/api/products/${productId}`, {
           method: 'PUT',
@@ -131,6 +188,14 @@
         alert(error.message);
       }
     });
+
+    function resetForm() {
+      if (!originalProduct) return;
+      document.getElementById('name').value = originalProduct.name;
+      document.getElementById('description').value = originalProduct.description || '';
+      document.getElementById('price').value = originalProduct.price;
+      document.getElementById('quantity').value = originalProduct.quantity;
+    }
 
     loadProduct();
   </script>

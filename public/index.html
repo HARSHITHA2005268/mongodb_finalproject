@@ -1,89 +1,167 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
+  <meta charset="UTF-8" />
   <title>Add Product</title>
   <style>
     body {
-      font-family: Arial, sans-serif;
-      max-width: 500px;
-      margin: 30px auto;
-      padding: 20px;
-      background: #f9f9f9;
-      border-radius: 8px;
-      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: linear-gradient(to right, #e0f7fa, #f5fafa);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      margin: 0;
+      padding: 1rem;
     }
-    h1 {
-      text-align: center;
-      color: #333;
-    }
-    label {
-      font-weight: bold;
-      margin-top: 10px;
-      display: block;
-    }
-    input[type="text"], input[type="number"] {
+
+    .container {
+      background-color: #fff;
       width: 100%;
-      padding: 8px;
+      max-width: 540px;
+      padding: 2rem;
+      border-radius: 1rem;
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
+      transition: box-shadow 0.3s ease;
+      text-align: center;
+    }
+
+    .container:hover {
+      box-shadow: 0 10px 28px rgba(0, 0, 0, 0.12);
+    }
+
+    h1 {
+      color: #006064;
+      margin-bottom: 1.5rem;
+      font-size: 1.8rem;
+    }
+
+    label {
+      display: block;
+      margin-top: 1rem;
+      font-weight: 600;
+      color: #333;
+      text-align: left;
+    }
+
+    input[type="text"],
+    input[type="number"],
+    textarea {
+      width: 100%;
+      padding: 10px 14px;
       margin-top: 5px;
-      border-radius: 4px;
       border: 1px solid #ccc;
+      border-radius: 8px;
+      font-size: 1rem;
+      transition: border-color 0.3s;
       box-sizing: border-box;
     }
+
+    textarea {
+      resize: vertical;
+      min-height: 60px;
+    }
+
+    input:focus,
+    textarea:focus {
+      border-color: #007B8F;
+      outline: none;
+    }
+
+    .buttons {
+      display: flex;
+      gap: 10px;
+      margin-top: 1.5rem;
+    }
+
     button {
-      margin-top: 15px;
-      padding: 10px;
-      width: 100%;
-      background-color: #007BFF;
+      flex: 1;
+      padding: 12px;
+      background-color: #007B8F;
+      color: #fff;
       border: none;
-      color: white;
-      font-size: 16px;
-      border-radius: 4px;
+      font-size: 1rem;
+      font-weight: 600;
+      border-radius: 8px;
       cursor: pointer;
+      transition: background-color 0.3s ease;
     }
+
     button:hover {
-      background-color: #0056b3;
+      background-color: #005f6b;
     }
+
+    button.reset {
+      background-color: #6c757d;
+    }
+
+    button.reset:hover {
+      background-color: #5a6268;
+    }
+
     #message {
-      margin-top: 15px;
-      font-weight: bold;
-      text-align: center;
+      margin-top: 1.2rem;
+      font-weight: 600;
+      font-size: 1rem;
+      transition: opacity 0.3s ease;
     }
+
     .link {
-      margin-top: 20px;
-      display: block;
-      text-align: center;
+      margin-top: 1.5rem;
     }
+
     .link a {
+      color: #007B8F;
       text-decoration: none;
-      color: #007BFF;
+      font-weight: 500;
+      font-size: 1.1rem;
     }
+
     .link a:hover {
       text-decoration: underline;
+    }
+
+    @media (max-width: 600px) {
+      .container {
+        padding: 1.5rem;
+      }
+
+      h1 {
+        font-size: 1.5rem;
+      }
     }
   </style>
 </head>
 <body>
-  <h1>Add New Product</h1>
-  <form id="productForm">
-    <label>Name:</label>
-    <input type="text" id="name" required>
+  <div class="container">
+    <h1>Add a New Product</h1>
+    <form id="productForm">
+      <label for="name">Product Name:</label>
+      <input type="text" id="name" required />
 
-    <label>Description:</label>
-    <input type="text" id="description">
+      <label for="description">Description:</label>
+      <textarea id="description" placeholder="Enter product description..."></textarea>
 
-    <label>Price:</label>
-    <input type="number" id="price" required>
+      <label for="price">Price ($):</label>
+      <input type="number" id="price" step="0.01" min="0" required />
 
-    <label>Quantity:</label>
-    <input type="number" id="quantity" required>
+      <label for="quantity">Quantity:</label>
+      <input type="number" id="quantity" min="0" required />
 
-    <button type="submit">Add Product</button>
-  </form>
+      <label for="image">Image URL (optional):</label>
+      <input type="text" id="image" placeholder="https://example.com/image.jpg" />
 
-  <p id="message"></p>
+      <div class="buttons">
+        <button type="submit">Add Product</button>
+        <button type="button" class="reset" onclick="form.reset(); message.textContent='';">Reset</button>
+      </div>
+    </form>
 
-  <div class="link">
-    <a href="products.html">View All Products</a>
+    <p id="message"></p>
+
+    <div class="link">
+      <a href="products.html">← View All Products</a>
+    </div>
   </div>
 
   <script>
@@ -94,11 +172,18 @@
       e.preventDefault();
 
       const product = {
-        name: document.getElementById('name').value,
-        description: document.getElementById('description').value,
-        price: Number(document.getElementById('price').value),
-        quantity: Number(document.getElementById('quantity').value)
+        name: form.name.value.trim(),
+        description: form.description.value.trim(),
+        price: Number(form.price.value),
+        quantity: Number(form.quantity.value),
+        image: form.image.value.trim() || null
       };
+
+      if (!product.name || isNaN(product.price) || isNaN(product.quantity)) {
+        message.textContent = "Please fill all required fields correctly.";
+        message.style.color = "red";
+        return;
+      }
 
       try {
         const res = await fetch('http://localhost:5000/api/products', {
@@ -110,16 +195,16 @@
         });
 
         if (res.ok) {
-          message.textContent = 'Product added successfully!';
+          message.textContent = '✅ Product added successfully!';
           message.style.color = 'green';
           form.reset();
         } else {
           const data = await res.json();
-          message.textContent = 'Error: ' + (data.message || 'Failed to add product');
+          message.textContent = '❌ Error: ' + (data.message || 'Failed to add product');
           message.style.color = 'red';
         }
       } catch (error) {
-        message.textContent = 'Error: ' + error.message;
+        message.textContent = '❌ Error: ' + error.message;
         message.style.color = 'red';
       }
     });
